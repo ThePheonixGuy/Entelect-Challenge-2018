@@ -124,7 +124,7 @@ def print_allocations(allocations):
         f.write(output)
     print(local_filename)
 
-filename = "map_3.input"
+filename = "map_1.input"
 workers, field_map = map_setup(filename)
 location_dict = get_locations(field_map)
 distance_dict = get_distances(location_dict)
