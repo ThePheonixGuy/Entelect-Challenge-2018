@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 G,g,A,a
 F,f,B,b
 C,c,D,d
+=======
+C,c,B,b
+G,g,A,a
+F,f,D,d
+>>>>>>> parent of 6e99674... New Allocation Algorithm
 E,e

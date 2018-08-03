@@ -80,6 +80,7 @@ def allocate_workers(workers, work_list, distances):
 
     for x in range(workers):
         allocations.append([])
+<<<<<<< HEAD
     print(work_list)
     for item in work_list:
         if item not in non_valid_options:
@@ -104,6 +105,64 @@ def allocate_workers(workers, work_list, distances):
 
 
     return workers_list
+=======
+
+        allocations[x].append(work_list[x])
+
+
+    # for item in work_list:
+    #     if item not in non_valid_options:
+    #         for key, value in distances.items():
+    #             if key is not item:
+    #                 result = distances[key] / distances [item[0]]
+    #                 if 0.95 <= result <= 1.05:
+    #                     # print("Cluster found: " + key )
+    #                     if item not in non_valid_options:
+    #                         allocations[current_worker].append(item)
+    #                         non_valid_options.append(item)
+    #         # allocations[current_worker].append(item)
+    #     current_worker = current_worker + 1 if current_worker < workers - 1 else 0
+    #         # non_valid_options.append(item)
+    #
+    # workers_list = []
+    # for index, worker_thread in enumerate(allocations):
+    #     workers_list.append([])
+    #     for index2, item in enumerate(worker_thread):
+    #         workers_list[index].append(item[0])
+    #
+    #
+    # return workers_list
+
+def new_allocations(workers, start_dists, travel_dists, depot_distances, locations):
+    allocations = []
+    non_valid_options = []
+    current_worker = 0
+    for x in range(workers):
+        allocations.append([])
+
+    for x in range(workers):
+        for allocation in allocations:
+            if len(allocation) <=0:
+                if start_dists[0] not in non_valid_options:
+                    allocation.append(start_dists[0])
+                    non_valid_options.append(start_dists[0])
+                last_allocation = allocation[-1]
+                check_dist = depot_distances[last_allocation[0].lower()][0]
+
+                for item in start_dists:
+                    dist_from_start = distance([0,0], locations[check_dist[0]])
+                    print(dist_from_start)
+
+                    if check_dist[1] < dist_from_start:
+                        print("going to nex tlocation is closer than dispatching new worker. continue")
+                        break
+
+
+
+
+>>>>>>> parent of 6e99674... New Allocation Algorithm
+
+    print(allocations)
 
 def print_allocations(allocations):
     string_list = []
@@ -127,12 +186,25 @@ def print_allocations(allocations):
 filename = "map_3.input"
 workers, field_map = map_setup(filename)
 location_dict = get_locations(field_map)
+<<<<<<< HEAD
 distance_dict = get_distances(location_dict)
 distance_dict = get_distance_from_start(distance_dict, location_dict)
 distance_dict = get_isolation_bias(distance_dict, location_dict)
 orders = order_distances(distance_dict)
 allocations = allocate_workers(workers, orders, distance_dict)
 print_allocations(allocations)
+=======
+travel_distance_dict = get_distances(location_dict)
+start_distance_dict = get_distance_from_start(travel_distance_dict, location_dict)
+depot_distances = get_distance_to_next_depot(travel_distance_dict,location_dict)
+new_allocations(workers, start_distance_dict, travel_distance_dict, depot_distances, location_dict)
+# distance_dict = add_distance_from_start(distance_dict, location_dict)
+# distance_dict = get_isolation_bias(distance_dict, location_dict)
+#
+# orders = order_distances(distance_dict)
+# allocations = allocate_workers(workers, orders, distance_dict, depot_distances)
+# print_allocations(allocations)
+>>>>>>> parent of 6e99674... New Allocation Algorithm
 
 tend = datetime.now()
 print("Ended: " + str((tend - tstart).total_seconds()))
