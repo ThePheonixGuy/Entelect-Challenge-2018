@@ -151,38 +151,55 @@ def new_allocations(workers, start_dists, travel_dists, depot_distances, locatio
     allocations = []
     non_valid_options = []
     current_worker = 0
+    pprint(dict(start_dists))
+    pprint(depot_distances)
     for x in range(workers):
         allocations.append([])
 
+    break_continue = False
+    next_stop = start_dists[0]
     for x in range(workers):
         for allocation in allocations:
-            if len(allocation) <=0:
-                if start_dists[0] not in non_valid_options:
-                    allocation.append(start_dists[0])
-                    non_valid_options.append(start_dists[0])
-                last_allocation = allocation[-1]
-                check_dist = depot_distances[last_allocation[0].lower()][0]
+            # Worker specific List
+            if next_stop[0] not in non_valid_options:
+                allocation.append(next_stop)
+                non_valid_options.append(next_stop[0])
 
-                for item in start_dists:
-                    dist_from_start = distance([0,0], locations[check_dist[0]])
-                    print(dist_from_start)
+            next_possible_stops = depot_distances[allocation[-1][0].lower()]
+            for possible_stop in next_possible_stops:
+                if possible_stop[0] not in non_valid_options:
+                    print("Possible Stop found: " +str(possible_stop[0]))
+                    next_stop = possible_stop
+                    start_dists_dict = dict(start_dists)
+                    if next_stop[1] < start_dists_dict[next_stop[0]]:
+                        allocation.append(next_stop)
+                        non_valid_options.append(next_stop[0])
+                    else:
+                        allocate_secondary_worker(allocations, x+1, next_stop, non_valid_options)
 
-                    if check_dist[1] < dist_from_start:
-                        print("going to nex tlocation is closer than dispatching new worker. continue")
-                        break
-
-
-
-
+                # else:
+                #     break
+            break
 
     print(allocations)
+    print(non_valid_options)
+    print(next_possible_stops)
+    return(allocations)
+
+
+def allocate_secondary_worker(allocations, worker, work_unit, non_valid_options):
+    if work_unit not in non_valid_options:
+        allocations[worker].append(work_unit)
+        non_valid_options.append(work_unit[0])
+
+
 
 def print_allocations(allocations):
     string_list = []
     for worker in allocations:
         string_items = ""
         for item in worker:
-            string_items += item + "," + item.lower() + ","
+            string_items += item[0] + "," + item[0].lower() + ","
         string_items = string_items[:-1]
         string_list.append(string_items)
     output = ""
@@ -202,13 +219,13 @@ location_dict = get_locations(field_map)
 travel_distance_dict = get_distances(location_dict)
 start_distance_dict = get_distance_from_start(travel_distance_dict, location_dict)
 depot_distances = get_distance_to_next_depot(travel_distance_dict,location_dict)
-new_allocations(workers, start_distance_dict, travel_distance_dict, depot_distances, location_dict)
+allocations = new_allocations(workers, start_distance_dict, travel_distance_dict, depot_distances, location_dict)
 # distance_dict = add_distance_from_start(distance_dict, location_dict)
 # distance_dict = get_isolation_bias(distance_dict, location_dict)
 #
 # orders = order_distances(distance_dict)
 # allocations = allocate_workers(workers, orders, distance_dict, depot_distances)
-# print_allocations(allocations)
+print_allocations(allocations)
 
 tend = datetime.now()
 print("Ended: " + str((tend - tstart).total_seconds()))
