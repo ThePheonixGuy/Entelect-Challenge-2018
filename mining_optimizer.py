@@ -51,25 +51,50 @@ def get_distances(locations):
 
     return distances
 
+def get_distance_from_start(distances, locations):
+    for key, value in distances.items():
+        mine_coord = locations[key]
+        distance_from_start = distance([0,0], mine_coord)
+        distances[key] = distances[key] + distance_from_start
+
+    return distances
+
+def get_isolation_bias(distances, locations):
+    for key, value in distances.items():
+        mine_coord = locations[key.lower()]
+        for key, value in distances.items():
+            distance_to_next_node = distance(mine_coord, locations[key])
+            isolation_bias = distance_to_next_node / len(distances)
+            distances[key] = distances[key] + isolation_bias
+    return distances
 
 def order_distances(distances):
     ordered = sorted(distances.items(), key=lambda x: x[1])
     return ordered
 
 
-def allocate_workers(workers, work_list):
+def allocate_workers(workers, work_list, distances):
     allocations = []
     non_valid_options = []
     current_worker = 0
 
     for x in range(workers):
         allocations.append([])
-
+    print(work_list)
     for item in work_list:
         if item not in non_valid_options:
-            allocations[current_worker].append(item)
-            current_worker = current_worker + 1 if current_worker < workers - 1 else 0
-            non_valid_options.append(item)
+            pprint(distances)
+            for key, value in distances.items():
+                if key is not item:
+                    result = distances[key] / distances [item[0]]
+                    if 0.95 <= result <= 1.05:
+                        # print("Cluster found: " + key )
+                        if item not in non_valid_options:
+                            allocations[current_worker].append(item)
+                            non_valid_options.append(item)
+            # allocations[current_worker].append(item)
+        current_worker = current_worker + 1 if current_worker < workers - 1 else 0
+            # non_valid_options.append(item)
 
     workers_list = []
     for index, worker_thread in enumerate(allocations):
@@ -99,17 +124,14 @@ def print_allocations(allocations):
         f.write(output)
     print(local_filename)
 
-filename = "map_1.input"
+filename = "map_3.input"
 workers, field_map = map_setup(filename)
-pprint(field_map)
 location_dict = get_locations(field_map)
-pprint(location_dict)
 distance_dict = get_distances(location_dict)
-pprint(distance_dict)
+distance_dict = get_distance_from_start(distance_dict, location_dict)
+distance_dict = get_isolation_bias(distance_dict, location_dict)
 orders = order_distances(distance_dict)
-pprint(orders)
-allocations = allocate_workers(workers, orders)
-pprint(allocations)
+allocations = allocate_workers(workers, orders, distance_dict)
 print_allocations(allocations)
 
 tend = datetime.now()
